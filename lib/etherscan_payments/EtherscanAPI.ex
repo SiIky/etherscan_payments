@@ -11,18 +11,22 @@ defmodule EtherscanPayments.EtherscanAPI do
     end
   end
 
+  defp wait_for_rate_limit(call) do
+    wait_for_rate_limit()
+    case call.() do
+      {:ok, "Max rate limit reached"} -> wait_for_rate_limit(call)
+      ret -> ret
+    end
+  end
+
   defp timestamp_string_to_integer(timestamp) do
     {timestamp, ""} = Integer.parse(timestamp)
     timestamp
   end
 
   def transaction_receipt_status(tx_hash) do
-    wait_for_rate_limit()
-    case Etherscan.get_transaction_receipt_status(tx_hash) do
-      # TODO: How to move these out?
-      {:ok, "Max rate limit reached"} ->
-        transaction_receipt_status(tx_hash)
-
+    call = fn () -> Etherscan.get_transaction_receipt_status(tx_hash) end
+    case wait_for_rate_limit(call) do
       {:ok, %{"status" => "1"}} ->
         {:ok, true}
 
@@ -37,11 +41,8 @@ defmodule EtherscanPayments.EtherscanAPI do
   end
 
   def transaction_receipt(tx_hash) do
-    wait_for_rate_limit()
-    case Etherscan.eth_get_transaction_receipt(tx_hash) do
-      {:ok, "Max rate limit reached"} ->
-        transaction_receipt(tx_hash)
-
+    call = fn () -> Etherscan.eth_get_transaction_receipt(tx_hash) end
+    case wait_for_rate_limit(call) do
       {:ok, %{blockNumber: _}} = reply ->
         reply
 
@@ -53,11 +54,8 @@ defmodule EtherscanPayments.EtherscanAPI do
   end
 
   def block_and_uncle_rewards(block_no) do
-    wait_for_rate_limit()
-    case Etherscan.get_block_and_uncle_rewards(block_no) do
-      {:ok, "Max rate limit reached"} ->
-        block_and_uncle_rewards(block_no)
-
+    call = fn () -> Etherscan.get_block_and_uncle_rewards(block_no) end
+    case wait_for_rate_limit(call) do
       {:ok, %{
         blockNumber: _,
         timeStamp: timestamp,
