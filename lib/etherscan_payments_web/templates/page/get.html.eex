@@ -1,0 +1,5 @@
+<form action="/" method="post">
+  <label for="tx_hash">Transaction Hash:</label>
+  <input type="text" name="tx_hash">
+  <input type="submit" value="Submit">
+</form>

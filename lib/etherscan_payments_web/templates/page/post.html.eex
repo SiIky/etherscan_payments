@@ -1,0 +1,12 @@
+<form action="/" method="post">
+  <label for="tx_hash">Transaction Hash:</label>
+  <input type="text" name="tx_hash">
+  <input type="submit" value="Submit">
+</form>
+
+<ul>
+  <li>Transaction Hash: <%= @tx_hash %></li>
+  <li>Successfully processed transaction: <%= @status %></li>
+  <li>Block Number: <%= @block_no %></li>
+  <li>Timestamp: <%= @timestamp %></li>
+</ul>
